@@ -74,16 +74,21 @@ def github2gitee(github_access_token, gitee_access_token,
     else:
         print("更新失败，请人工检查。\ncommit id: {github_commit_id}")
 
+
 def run():
     # load config
 
     # 定义要获取提交历史的仓库信息
+    cnt = 1
     for repo_name in config.REPO_LIST:
-        print(f"开始扫描仓库 : {config.GITEE_OWNER}/{repo_name}")
+        if cnt > 1:
+            print("")
+        print(f"{cnt}/{len(config.REPO_LIST)} 开始扫描仓库 : {config.GITEE_OWNER}/{repo_name}")
         github2gitee(config.GITHUB_TOKEN, config.GITEE_TOKEN,
                      config.GITHUB_OWNER, config.GITEE_OWNER,
                      repo_name, repo_name)
-        
+        cnt += 1   
+
 
 if __name__ == "__main__":
     import sys
