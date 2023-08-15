@@ -91,9 +91,9 @@ if __name__ == "__main__":
     argvs = dict(enumerate(sys.argv))
     github_token = argvs.get(1, None)
     gitee_token = argvs.get(2, None)
-    if not github_token:
+    if github_token:
         config.GITHUB_TOKEN = github_token
-    if not gitee_token:
+    if gitee_token:
         config.GITEE_TOKEN = gitee_token
     if not config.GITHUB_TOKEN or not config.GITEE_TOKEN:
         raise ValueError("GITHUB_TOKEN or GITHUB_TOKEN is empty")
