@@ -1,8 +1,9 @@
+import os
 # github 个人令牌
-GITHUB_TOKEN = ""
+GITHUB_TOKEN = os.environ.get("github_token", "")
 
 # gitee 个人令牌
-GITEE_TOKEN = ""
+GITEE_TOKEN = os.environ.get("gitee_token", "")
 
 # 需要同步的仓库名单，为空是默认获取全部仓库
 REPO_LIST = [

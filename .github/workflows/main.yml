@@ -39,4 +39,4 @@ jobs:
           python print_env.py
       - name: Run Main.py to sync code
         run: |
-          python main.py ${{ secrets.GIT_TOKEN }} ${{ secrets.GITEE_TOKEN }}
+          python main.py
