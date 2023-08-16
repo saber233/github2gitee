@@ -39,45 +39,45 @@ def get_commit_id(git_client, owner, repo_name):
     commit_id = commits[0].raw_data['sha']
     return commit_id
 
-# 使用 pygithub 实现，不使用 gitpython，目的是不需要即保存个人token，又保存 private key，未调试，
-def sync_repo_by_pygithub(src_url: str, dest_url: str, src_private_key: str = None, dest_private_key: str = None):
-    """同步仓库
-
-    Args:
-        src_url (str): 源仓库地址
-        dest_url (str): 目标仓库地址
-        src_private_key (str, optional): 源仓库私钥路径. Defaults to None.
-        dest_private_key (str, optional): 目标仓库私钥路径. Defaults to None.
-    """
-    repo_name = src_url.split("/")[-1].split(".")[0]
-
-    with tempfile.TemporaryDirectory() as local_path:
-        print(f"下载仓库到临时目录： {local_path} ...")
-        if src_private_key:
-            # 使用 PyGithub 下载源仓库
-            g = Github(src_private_key)
-            repo = g.get_repo(src_url)
-            repo.clone(local_path)
-        else:
-            g = Github()
-            repo = g.get_repo(src_url)
-            repo.clone(local_path)
-        print("下载完成")
-
-        # 使用 PyGithub 设置目标仓库 URL
-        if dest_private_key:
-            g = Github(dest_private_key)
-            repo = g.get_repo(dest_url)
-            repo.edit(private=True)
-        else:
-            g = Github()
-            repo = g.get_repo(dest_url)
-            repo.edit(private=False)
-        print(f"推送到目标仓库")
-
-        # 等待刷新，避免直接查询 commit id 时，依旧是旧 ID
-        time.sleep(5)
-        print("推送完成")
+# # 使用 pygithub 实现，不使用 gitpython，目的是不需要即保存个人token，又保存 private key，未调试，
+# def sync_repo_by_pygithub(src_url: str, dest_url: str, src_private_key: str = None, dest_private_key: str = None):
+#     """同步仓库
+#
+#     Args:
+#         src_url (str): 源仓库地址
+#         dest_url (str): 目标仓库地址
+#         src_private_key (str, optional): 源仓库私钥路径. Defaults to None.
+#         dest_private_key (str, optional): 目标仓库私钥路径. Defaults to None.
+#     """
+#     repo_name = src_url.split("/")[-1].split(".")[0]
+#
+#     with tempfile.TemporaryDirectory() as local_path:
+#         print(f"下载仓库到临时目录： {local_path} ...")
+#         if src_private_key:
+#             # 使用 PyGithub 下载源仓库
+#             g = Github(src_private_key)
+#             repo = g.get_repo(src_url)
+#             repo.clone(local_path)
+#         else:
+#             g = Github()
+#             repo = g.get_repo(src_url)
+#             repo.clone(local_path)
+#         print("下载完成")
+#
+#         # 使用 PyGithub 设置目标仓库 URL
+#         if dest_private_key:
+#             g = Github(dest_private_key)
+#             repo = g.get_repo(dest_url)
+#             repo.edit(private=True)
+#         else:
+#             g = Github()
+#             repo = g.get_repo(dest_url)
+#             repo.edit(private=False)
+#         print(f"推送到目标仓库")
+#
+#         # 等待刷新，避免直接查询 commit id 时，依旧是旧 ID
+#         time.sleep(5)
+#         print("推送完成")
 
 
 def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
@@ -101,7 +101,7 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     with tempfile.TemporaryDirectory() as local_path:
         print(f"下载仓库到临时目录： {local_path} ...")
         if src_private_key:
-            git.Repo.clone_from(src_url, local_path, env={"GIT_SSH_COMMAND": f"ssh -i {spk}"})
+            git.Repo.clone_from(src_url, local_path, env={"GIT_SSH_COMMAND": f"ssh -i {spk} -o StrictHostKeyChecking=no"})
         else:
             git.Repo.clone_from(src_url, local_path)
         print("下载完成")
@@ -110,8 +110,8 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         origin.set_url(dest_url)
         print(f"推送到目标仓库")
         if dest_private_key:
-            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"ssh -i {dpk}"})
-            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"ssh -i {dpk}"})
+            repo.git.push(env={"GIT_SSH_COMMAND": f"ssh -i {dpk} -o StrictHostKeyChecking=no"})  # 禁用主机密钥验证执行推送命令
+            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"ssh -i {dpk} -o StrictHostKeyChecking=no"})  # 禁用主机密钥验证执行推送命令
         else:
             repo.git.push("--all")
             repo.git.push("--tags")
@@ -120,7 +120,7 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         time.sleep(5)
         print("推送完成")
     os.remove(spk)
-    os.remote(dpk)
+    os.remove(dpk)
 
 def github2gitee(github_client, gitee_client,
                  github_owner, gitee_owner,
@@ -188,3 +188,4 @@ if __name__ == "__main__":
     if not config.GITHUB_TOKEN or not config.GITEE_TOKEN:
         raise ValueError("GITHUB_TOKEN or GITHUB_TOKEN is empty")
     run()
+
