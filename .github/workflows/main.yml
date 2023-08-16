@@ -31,6 +31,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       # Runs a set of commands using the runners shell
+      - name: print env
+        run: |
+          python print_env.py
       - name: Run Main.py to sync code
         run: |
           python main.py ${{ secrets.GIT_TOKEN }} ${{ secrets.GITEE_TOKEN }}
