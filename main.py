@@ -95,6 +95,9 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     with open(dpk, 'w') as f:
         f.write(dest_private_key)
 
+    os.chmod(spk, 0o600)
+    os.chmod(dpk, 0o600)
+
     with tempfile.TemporaryDirectory() as local_path:
         print(f"下载仓库到临时目录： {local_path} ...")
         if src_private_key:
