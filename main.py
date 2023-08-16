@@ -85,7 +85,7 @@ def github2gitee(github_client, gitee_client,
     if gitee_commit_id == github_commit_id:
         print(f"仓库 {gitee_owner}/{gitee_repo_name} 已更新到最新。 \ncommit id: {github_commit_id}")
     else:
-        print("更新失败，请人工检查。\ncommit id: {github_commit_id}")
+        print(f"更新失败，请人工检查。\ncommit id: {github_commit_id}")
 
 
 def get_repo_names(git_client):
