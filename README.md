@@ -24,3 +24,20 @@
 3. 配置 config.py
 4. 运行 main.py（python3）
 5. 在 crontab 中增加定时任务
+
+## 没有云主机怎么办？
+
+如果没有云主机，可以参考项目中的 github action，用 schedule 进行定时触发，此时需要将 github 和 gitee 的私钥都放到 action 的 secret 中。 
+
+使用 github action 需要的变量：
+
+```secret
+GITEE_PRIVATE_KEY: gitee 的私钥，用于提交代码
+GIT_PRIVATE_KEY： github 的私钥，用于拉取代码
+GITEE_TOKEN： gitee 的个人令牌，用于获取仓库列表，查询 commit id 等
+GIT_TOKEN： github 的个人令牌，用于获取仓库列表，查询 commit id 等
+```
+
+Github Action 同步结果：
+
+![](https://picgo-1256712489.cos.ap-chongqing.myqcloud.com/img/202308161306768.png)
