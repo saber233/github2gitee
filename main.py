@@ -87,15 +87,15 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     # gitee_repo = f"git@gitee.com:{gitee_owner}/{gitee_repo_name}.git"
     repo_name = src_url.split("/")[-1].split(".")[0]
     import tempfile
+    spk = "/tmp/spk"
+    dpk = "/tmp/dpk"
+
+    with open(spk, 'w') as f:
+        f.write(src_private_key)
+    with open(dpk, 'w') as f:
+        f.write(dest_private_key)
 
     with tempfile.TemporaryDirectory() as local_path:
-        spk = os.path.join(local_path, "spk")
-        dpk = os.path.join(local_path, "dpk")
-
-        with open(spk, 'w') as f:
-            f.write(src_private_key)
-        with open(dpk, 'w') as f:
-            f.write(dest_private_key)
         print(f"下载仓库到临时目录： {local_path} ...")
         if src_private_key:
             git.Repo.clone_from(src_url, local_path, env={"GIT_SSH_COMMAND": f"ssh -i {spk}"})
@@ -116,6 +116,8 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         # 等待刷新，避免直接查询 commit id 时，依旧是旧 ID
         time.sleep(5)
         print("推送完成")
+    os.remove(spk)
+    os.remote(dpk)
 
 def github2gitee(github_client, gitee_client,
                  github_owner, gitee_owner,
