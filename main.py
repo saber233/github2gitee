@@ -99,8 +99,8 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         origin.set_url(dest_url)
         print(f"推送到目标仓库")
         if dest_private_key:
-            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"ssh -i {dest_private_key}"})
-            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"ssh -i {dest_private_key}"})
+            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"""ssh -i {dest_private_key}"""})
+            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"""ssh -i {dest_private_key}"""})
         else:
             repo.git.push("--all")
             repo.git.push("--tags")
