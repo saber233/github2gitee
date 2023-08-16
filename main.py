@@ -38,6 +38,47 @@ def get_commit_id(git_client, owner, repo_name):
     commit_id = commits[0].raw_data['sha']
     return commit_id
 
+# 使用 pygithub 实现，不使用 gitpython，目的是不需要即保存个人token，又保存 private key，未调试，
+def sync_repo_by_pygithub(src_url: str, dest_url: str, src_private_key: str = None, dest_private_key: str = None):
+    """同步仓库
+
+    Args:
+        src_url (str): 源仓库地址
+        dest_url (str): 目标仓库地址
+        src_private_key (str, optional): 源仓库私钥路径. Defaults to None.
+        dest_private_key (str, optional): 目标仓库私钥路径. Defaults to None.
+    """
+    repo_name = src_url.split("/")[-1].split(".")[0]
+
+    with tempfile.TemporaryDirectory() as local_path:
+        print(f"下载仓库到临时目录： {local_path} ...")
+        if src_private_key:
+            # 使用 PyGithub 下载源仓库
+            g = Github(src_private_key)
+            repo = g.get_repo(src_url)
+            repo.clone(local_path)
+        else:
+            g = Github()
+            repo = g.get_repo(src_url)
+            repo.clone(local_path)
+        print("下载完成")
+
+        # 使用 PyGithub 设置目标仓库 URL
+        if dest_private_key:
+            g = Github(dest_private_key)
+            repo = g.get_repo(dest_url)
+            repo.edit(private=True)
+        else:
+            g = Github()
+            repo = g.get_repo(dest_url)
+            repo.edit(private=False)
+        print(f"推送到目标仓库")
+
+        # 等待刷新，避免直接查询 commit id 时，依旧是旧 ID
+        time.sleep(5)
+        print("推送完成")
+
+
 def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     """ 同步
     """
@@ -63,6 +104,9 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         else:
             repo.git.push("--all")
             repo.git.push("--tags")
+        import time
+        # 等待刷新，避免直接查询 commit id 时，依旧是旧 ID
+        time.sleep(5)
         print("推送完成")
 
 def github2gitee(github_client, gitee_client,
@@ -113,7 +157,7 @@ def run():
     else:
         all_repo_names = get_repo_names(github_client)
 
-    scan_repo_names = [i for i in all_repo_names if i not in config.EXCLUDED_REPO_LIST and i in gitee_repo_names]
+    scan_repo_names = [i for i in all_repo_names if i not in config.EXCLUDED_REPO_LIST and i in gitee_repo_names and "-" not in i and "." not in i]
 
     for repo_name in scan_repo_names:
         if cnt > 1:
