@@ -4,6 +4,7 @@
 GitPython
 PyGithub
 """
+import os
 import git
 from github import Github
 # Authentication is defined via github.Auth
@@ -88,9 +89,16 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     import tempfile
 
     with tempfile.TemporaryDirectory() as local_path:
+        spk = os.path.join(local_path, "spk")
+        dpk = os.path.join(local_path, "dpk")
+
+        with open(spk, 'w') as f:
+            f.write(src_private_key)
+        with open(dpk, 'w') as f:
+            f.write(dest_private_key)
         print(f"下载仓库到临时目录： {local_path} ...")
         if src_private_key:
-            git.Repo.clone_from(src_url, local_path, env={"GIT_SSH_COMMAND": f"ssh -i {src_private_key}"})
+            git.Repo.clone_from(src_url, local_path, env={"GIT_SSH_COMMAND": f"ssh -i {spk}"})
         else:
             git.Repo.clone_from(src_url, local_path)
         print("下载完成")
@@ -99,8 +107,8 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
         origin.set_url(dest_url)
         print(f"推送到目标仓库")
         if dest_private_key:
-            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"""ssh -i {dest_private_key}"""})
-            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"""ssh -i {dest_private_key}"""})
+            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"ssh -i {dpk}"})
+            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"ssh -i {dpk}"})
         else:
             repo.git.push("--all")
             repo.git.push("--tags")
