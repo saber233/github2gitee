@@ -38,7 +38,7 @@ def get_commit_id(git_client, owner, repo_name):
     commit_id = commits[0].raw_data['sha']
     return commit_id
 
-def sync_repo(src_url, dest_url):
+def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     """ 同步
     """
     # github_repo = f"git@github.com:{github_owner}/{github_repo_name}.git"
@@ -48,19 +48,27 @@ def sync_repo(src_url, dest_url):
 
     with tempfile.TemporaryDirectory() as local_path:
         print(f"下载仓库到临时目录： {local_path} ...")
-        git.Repo.clone_from(src_url, local_path)
+        if src_private_key:
+            git.Repo.clone_from(url, path, env={"GIT_SSH_COMMAND": f"ssh -i {src_private_key}"})
+        else:
+            git.Repo.clone_from(src_url, local_path)
         print("下载完成")
         repo = git.Repo(local_path)
         origin = repo.remotes.origin
         origin.set_url(dest_url)
         print(f"推送到目标仓库")
-        repo.git.push("--all")
-        repo.git.push("--tags")
+        if dest_private_key:
+            repo.git.push("--all", env={"GIT_SSH_COMMAND": f"ssh -i {dest_private_key}"})
+            repo.git.push("--tags", env={"GIT_SSH_COMMAND": f"ssh -i {dest_private_key}"})
+        else:
+            repo.git.push("--all")
+            repo.git.push("--tags")
         print("推送完成")
 
 def github2gitee(github_client, gitee_client,
                  github_owner, gitee_owner,
-                 github_repo_name, gitee_repo_name):
+                 github_repo_name, gitee_repo_name
+                 github_private_key, gitee_private_key):
     # 判断是否最新，若非最新，则更新 gitee 仓库
     github_commit_id = get_commit_id(github_client, github_owner, github_repo_name)
 
@@ -71,7 +79,7 @@ def github2gitee(github_client, gitee_client,
         # 同步
         github_repo_url = f"git@github.com:{github_owner}/{github_repo_name}.git"
         gitee_repo_url = f"git@gitee.com:{gitee_owner}/{gitee_repo_name}.git"
-        sync_repo(github_repo_url, gitee_repo_url)
+        sync_repo(github_repo_url, gitee_repo_url, github_private_key, gitee_private_key)
         gitee_commit_id = get_commit_id(gitee_client, gitee_owner, gitee_repo_name)
     
     if gitee_commit_id == github_commit_id:
@@ -113,7 +121,8 @@ def run():
         print(f"{cnt}/{len(scan_repo_names)} 开始扫描仓库 : {github_owner}/{repo_name}")
         github2gitee(github_client, gitee_client,
                      github_owner, gitee_owner,
-                     repo_name, repo_name)
+                     repo_name, repo_name,
+                     config.GITHUB_PRIVATE_KEY, config.GITEE_PRIVATE_KEY)
         cnt += 1   
 
 

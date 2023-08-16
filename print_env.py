@@ -13,5 +13,5 @@ def get_all_env_variables():
     for key, value in env_variables.items():
         print(f"{key}: {value}")
 
-get_all_env_variables()
+# get_all_env_variables()
 
