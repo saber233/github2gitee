@@ -15,4 +15,29 @@ REPO_LIST = [
 # 特别的，如果仓库名称在 gitee 中不存在，也不会同步
 # 以及仓库名称中带有 "-", "." 字符，也不会同步
 EXCLUDED_REPO_LIST = [
+    "coreylam.github.io",
+    "coreynote",
+    "CS-Notes",
+    "Demo",
+    "djdemo",
+    "FaceLightBalance",
+    "gold",
+    "googletest",
+    "helloworld",
+    "ItChat",
+    "job_reptile",
+    "leetcode",
+    "lianjia",
+    "mynote",
+    "openweixin",
+    "playwright",
+    "protobuf",
+    "pyedusys",
+    "Python",
+    "pyUnitHelloWorld",
+    "QTAF",
+    "setup-ipsec-vpn",
+    "test_note",
+    "txapi",
 ]
+
