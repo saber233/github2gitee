@@ -90,7 +90,7 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
     with tempfile.TemporaryDirectory() as local_path:
         print(f"下载仓库到临时目录： {local_path} ...")
         if src_private_key:
-            git.Repo.clone_from(url, path, env={"GIT_SSH_COMMAND": f"ssh -i {src_private_key}"})
+            git.Repo.clone_from(src_url, path, env={"GIT_SSH_COMMAND": f"ssh -i {src_private_key}"})
         else:
             git.Repo.clone_from(src_url, local_path)
         print("下载完成")
