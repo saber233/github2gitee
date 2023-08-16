@@ -67,7 +67,7 @@ def sync_repo(src_url, dest_url, src_private_key=None, dest_private_key=None):
 
 def github2gitee(github_client, gitee_client,
                  github_owner, gitee_owner,
-                 github_repo_name, gitee_repo_name
+                 github_repo_name, gitee_repo_name,
                  github_private_key, gitee_private_key):
     # 判断是否最新，若非最新，则更新 gitee 仓库
     github_commit_id = get_commit_id(github_client, github_owner, github_repo_name)
