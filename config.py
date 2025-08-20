@@ -10,7 +10,6 @@ GITEE_PRIVATE_KEY = os.environ.get("gitee_private_key", "")
 # 需要同步的仓库名单，为空是默认获取全部仓库
 REPO_LIST = [
     'githubhost',
-    'ChinaTextbook',
     'MultiAgentPPT'
 ]
 
